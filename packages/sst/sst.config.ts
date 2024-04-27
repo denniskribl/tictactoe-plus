@@ -1,14 +1,14 @@
 import { SSTConfig } from "sst";
-import { API } from "./stacks/MyStack";
+import App from "./stacks/App";
 
 export default {
   config(_input) {
     return {
-      name: "sst",
+      name: "tictactoe-plus",
       region: "eu-central-1",
     };
   },
   stacks(app) {
-    app.stack(API);
+    app.stack(App);
   }
 } satisfies SSTConfig;
