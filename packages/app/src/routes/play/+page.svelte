@@ -1,5 +1,7 @@
 <script lang="ts">
 	import Dialog from '../../components/dialog.svelte';
+	import Help from '../../components/help.svelte';
+	import { Confetti } from 'svelte-confetti';
 
 	let board = [
 		['', '', ''],
@@ -11,6 +13,8 @@
 	let queueX: [number, number][] = [];
 	let queueO: [number, number][] = [];
 
+	let showConfetti = false;
+
 	let winnerDialog: HTMLDialogElement;
 
 	$: winner = checkWinner(board);
@@ -21,6 +25,7 @@
 
 	function onWin() {
 		winnerDialog.showModal();
+		showConfetti = true;
 	}
 
 	function reset() {
@@ -28,6 +33,7 @@
 		queueO = [];
 		queueX = [];
 		turn = 'X';
+		showConfetti = false;
 	}
 
 	function checkWinner(board: string[][]) {
@@ -77,11 +83,16 @@
 	}
 </script>
 
+{#if showConfetti}
+	<div class="fixed top-[-50px] left-0 h-full w-full flex justify-center overflow-hidden pointer-events-none z-100">
+		<Confetti x={[-5, 5]} y={[0, 0.1]} infinite fallDistance="100vh" />
+	</div>
+{/if}
 <div class="flex justify-center items-center flex-col h-screen">
 	<h1 class="text-4xl">tictactoe+</h1>
 	<div class="flex flex-col h-[60%] justify-center content-center max-w-xs">
 		<h2
-			class="text-2xl text-center mb-5"
+			class="text-2xl text-center mb-10"
 			class:text-info={turn === 'X'}
 			class:text-success={turn === 'O'}
 		>
@@ -92,9 +103,9 @@
 				{#each board as row, x}
 					<div class="flex -mb-2 gap-2">
 						{#each row as col, y}
-							<div
+							<button
 								on:click={() => place(x, y)}
-								class="flex items-center justify-center w-20 mb-4 h-20 border-white border-2 rounded-xl bg-transparent bg-white bg-opacity-0 hover:bg-opacity-25 duration-300"
+								class="btn btn-ghost text-4xl bold flex items-center justify-center w-20 mb-4 h-20 border-white border-2 rounded-xl hover:bg-opacity-25 select-none duration-300"
 							>
 								<span
 									class:text-info={board[x][y] === 'X'}
@@ -104,21 +115,35 @@
 										nextToPopX[1] === y &&
 										turn === 'X') ||
 										(nextToPopO && nextToPopO[0] === x && nextToPopO[1] === y && turn === 'O')}
-									class="pointer-events-none select-none transition-opacity ease-in duration-400"
+									class="pointer-events-none select-none"
 								>
 									{board[x][y]}
 								</span>
-							</div>
+							</button>
 						{/each}
 					</div>
 				{/each}
 			</div>
-			<a class="btn btn-primary w-full mt-10" href="..">Exit</a>
+			<div class="w-full mt-10 flex flex-col gap-3">
+				<a class="btn btn-primary" href="..">Exit</a>
+				<Help />
+			</div>
 		</div>
 	</div>
 </div>
+
 
 <Dialog bind:dialog={winnerDialog} on:buttonClicked={() => reset()}>
 	<p slot="content" class="text-xl">{winner} won!</p>
 	<slot slot="button">New game</slot>
 </Dialog>
+
+<style>
+    /* Add this CSS to reset the :active pseudo-class */
+    @media (hover:none) {
+        /* Apply styles only on devices that do not support hover */
+        .btn:active {
+            background-color: transparent;
+        }
+    }
+</style>
